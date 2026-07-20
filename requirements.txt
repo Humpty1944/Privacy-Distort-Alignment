@@ -1,9 +1,10 @@
+torch>=2.2
+dp-accounting>=0.5
+opacus>=1.5
 numpy
-pandas
 scikit-learn
-scipy
-matplotlib
-torch
+evaluate
+pandas
 transformers
-opacus
-sentence-transformers
+rouge_score 
+pyyaml
