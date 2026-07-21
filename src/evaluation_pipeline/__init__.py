@@ -1,5 +1,3 @@
-%%writefile src/evaluation_pipeline/__init__.py
-
 """
 Reusable evaluation pipeline.
 """
