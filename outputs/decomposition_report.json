@@ -1,0 +1,338 @@
+{
+  "truthfulness": {
+    "mediation_via_representation_distortion": {
+      "outcome": "truthfulness",
+      "path_a_treatment_to_mediator": -0.05407431939457797,
+      "path_b_mediator_to_outcome": -0.7561591085006131,
+      "path_c_total_effect": 0.042092357989374767,
+      "path_c_prime_direct_effect": 0.0012035688431932673,
+      "indirect_effect": 0.04088878914618149,
+      "proportion_mediated": 0.9714064761233598,
+      "indirect_effect_ci95": [
+        0.0,
+        0.1628314252701655
+      ],
+      "n": 8
+    },
+    "pathway_decomposition": {
+      "outcome": "truthfulness",
+      "standardized_coefficients": {
+        "epsilon": -2.6645352591003757e-15,
+        "representation_distortion": 4.029688820354943,
+        "calibration_ece": 1.0100418577330665,
+        "mean_grad_norm": -4.0308299343805185
+      },
+      "r_squared": 1.0,
+      "n": 8
+    },
+    "text_mechanism_mediation_via_input_text_distortion": {
+      "outcome": "truthfulness",
+      "path_a_treatment_to_mediator": -0.029321406077891958,
+      "path_b_mediator_to_outcome": -1.0621168825459675,
+      "path_c_total_effect": 0.04499703966844288,
+      "path_c_prime_direct_effect": 0.013854279253127986,
+      "indirect_effect": 0.03114276041531499,
+      "proportion_mediated": 0.6921068729140395,
+      "indirect_effect_ci95": [
+        0.012625984890077034,
+        0.07664939552582921
+      ],
+      "n": 12
+    },
+    "text_mechanism_pathway_decomposition": {
+      "outcome": "truthfulness",
+      "standardized_coefficients": {
+        "epsilon": -2.7328818097416274e-09,
+        "input_text_distortion": 0.28233399411452476,
+        "representation_distortion": -0.5089382788045681,
+        "calibration_ece": 0.7696982798108742
+      },
+      "r_squared": 1.0,
+      "n": 8
+    },
+    "dp_sgd_pathway_decomposition": {
+      "outcome": "truthfulness",
+      "error": "insufficient data"
+    }
+  },
+  "hallucination_rate": {
+    "mediation_via_representation_distortion": {
+      "outcome": "hallucination_rate",
+      "path_a_treatment_to_mediator": -0.05407431939457797,
+      "path_b_mediator_to_outcome": 0.0,
+      "path_c_total_effect": 0.0,
+      "path_c_prime_direct_effect": 0.0,
+      "indirect_effect": -0.0,
+      "proportion_mediated": NaN,
+      "indirect_effect_ci95": [
+        -0.0,
+        0.0
+      ],
+      "n": 8
+    },
+    "pathway_decomposition": {
+      "outcome": "hallucination_rate",
+      "standardized_coefficients": {
+        "epsilon": 0.0,
+        "representation_distortion": 0.0,
+        "calibration_ece": 0.0,
+        "mean_grad_norm": 0.0
+      },
+      "r_squared": NaN,
+      "n": 8
+    },
+    "text_mechanism_mediation_via_input_text_distortion": {
+      "outcome": "hallucination_rate",
+      "path_a_treatment_to_mediator": -0.029321406077891958,
+      "path_b_mediator_to_outcome": 0.0,
+      "path_c_total_effect": 0.0,
+      "path_c_prime_direct_effect": 0.0,
+      "indirect_effect": -0.0,
+      "proportion_mediated": NaN,
+      "indirect_effect_ci95": [
+        -0.0,
+        0.0
+      ],
+      "n": 12
+    },
+    "text_mechanism_pathway_decomposition": {
+      "outcome": "hallucination_rate",
+      "standardized_coefficients": {
+        "epsilon": 0.0,
+        "input_text_distortion": 0.0,
+        "representation_distortion": 0.0,
+        "calibration_ece": 0.0
+      },
+      "r_squared": NaN,
+      "n": 8
+    },
+    "dp_sgd_pathway_decomposition": {
+      "outcome": "hallucination_rate",
+      "error": "insufficient data"
+    }
+  },
+  "refusal_accuracy": {
+    "mediation_via_representation_distortion": {
+      "outcome": "refusal_accuracy",
+      "path_a_treatment_to_mediator": -0.05407431939457797,
+      "path_b_mediator_to_outcome": -1.429815826287703,
+      "path_c_total_effect": 0.07662443808745406,
+      "path_c_prime_direct_effect": -0.0006918795786496207,
+      "indirect_effect": 0.07731631766610367,
+      "proportion_mediated": 1.0090294897544299,
+      "indirect_effect_ci95": [
+        0.0,
+        0.32651250876463267
+      ],
+      "n": 8
+    },
+    "pathway_decomposition": {
+      "outcome": "refusal_accuracy",
+      "standardized_coefficients": {
+        "epsilon": -1.7763568394002505e-15,
+        "representation_distortion": 3.9759931376090303,
+        "calibration_ece": 0.26919913375414994,
+        "mean_grad_norm": -4.710201610900959
+      },
+      "r_squared": 1.0,
+      "n": 8
+    },
+    "text_mechanism_mediation_via_input_text_distortion": {
+      "outcome": "refusal_accuracy",
+      "path_a_treatment_to_mediator": -0.029321406077891958,
+      "path_b_mediator_to_outcome": -2.2448551183713406,
+      "path_c_total_effect": 0.0636471284783896,
+      "path_c_prime_direct_effect": -0.0021751800334105925,
+      "indirect_effect": 0.06582230851180029,
+      "proportion_mediated": 1.034175619315634,
+      "indirect_effect_ci95": [
+        3.1685354033987773e-18,
+        0.200681092498802
+      ],
+      "n": 12
+    },
+    "text_mechanism_pathway_decomposition": {
+      "outcome": "refusal_accuracy",
+      "standardized_coefficients": {
+        "epsilon": -3.1934923594434395e-09,
+        "input_text_distortion": 0.32991965811991375,
+        "representation_distortion": -1.3275917374063784,
+        "calibration_ece": -0.01165288092475475
+      },
+      "r_squared": 1.0,
+      "n": 8
+    },
+    "dp_sgd_pathway_decomposition": {
+      "outcome": "refusal_accuracy",
+      "error": "insufficient data"
+    }
+  },
+  "false_refusal_rate": {
+    "mediation_via_representation_distortion": {
+      "outcome": "false_refusal_rate",
+      "path_a_treatment_to_mediator": -0.05407431939457797,
+      "path_b_mediator_to_outcome": -1.2674662489353647,
+      "path_c_total_effect": 0.0690641601961586,
+      "path_c_prime_direct_effect": 0.000526785429379964,
+      "indirect_effect": 0.06853737476677858,
+      "proportion_mediated": 0.9923725210314029,
+      "indirect_effect_ci95": [
+        0.0,
+        0.29145549540016896
+      ],
+      "n": 8
+    },
+    "pathway_decomposition": {
+      "outcome": "false_refusal_rate",
+      "standardized_coefficients": {
+        "epsilon": -7.105427357601002e-15,
+        "representation_distortion": 14.244799287616608,
+        "calibration_ece": 1.502175050646784,
+        "mean_grad_norm": -13.750754397165789
+      },
+      "r_squared": 1.0,
+      "n": 8
+    },
+    "text_mechanism_mediation_via_input_text_distortion": {
+      "outcome": "false_refusal_rate",
+      "path_a_treatment_to_mediator": -0.029321406077891958,
+      "path_b_mediator_to_outcome": -1.9297853025793492,
+      "path_c_total_effect": 0.0574304322084074,
+      "path_c_prime_direct_effect": 0.0008464137083307732,
+      "indirect_effect": 0.0565840185000767,
+      "proportion_mediated": 0.9852619303776232,
+      "indirect_effect_ci95": [
+        3.1685354033987773e-18,
+        0.17046926266066748
+      ],
+      "n": 12
+    },
+    "text_mechanism_pathway_decomposition": {
+      "outcome": "false_refusal_rate",
+      "standardized_coefficients": {
+        "epsilon": -9.322940530687163e-09,
+        "input_text_distortion": 0.963152867831508,
+        "representation_distortion": -1.2382519839213342,
+        "calibration_ece": 0.6822680923414235
+      },
+      "r_squared": 0.9999999999999999,
+      "n": 8
+    },
+    "dp_sgd_pathway_decomposition": {
+      "outcome": "false_refusal_rate",
+      "error": "insufficient data"
+    }
+  },
+  "helpfulness": {
+    "mediation_via_representation_distortion": {
+      "outcome": "helpfulness",
+      "path_a_treatment_to_mediator": -0.05407431939457797,
+      "path_b_mediator_to_outcome": -0.05218242163136067,
+      "path_c_total_effect": 0.0034909908550075455,
+      "path_c_prime_direct_effect": 0.0006692619209308147,
+      "indirect_effect": 0.0028217289340767312,
+      "proportion_mediated": 0.808288835826994,
+      "indirect_effect_ci95": [
+        -0.013998132245963385,
+        0.012084406633354038
+      ],
+      "n": 8
+    },
+    "pathway_decomposition": {
+      "outcome": "helpfulness",
+      "standardized_coefficients": {
+        "epsilon": 1.4210854715202004e-14,
+        "representation_distortion": -24.79053624206655,
+        "calibration_ece": 0.7918550479578919,
+        "mean_grad_norm": 24.894236130751835
+      },
+      "r_squared": 1.0,
+      "n": 8
+    },
+    "text_mechanism_mediation_via_input_text_distortion": {
+      "outcome": "helpfulness",
+      "path_a_treatment_to_mediator": -0.029321406077891958,
+      "path_b_mediator_to_outcome": -0.12801586913170226,
+      "path_c_total_effect": 0.0030982308953204298,
+      "path_c_prime_direct_effect": -0.0006553743879044735,
+      "indirect_effect": 0.0037536052832249163,
+      "proportion_mediated": 1.2115318096189553,
+      "indirect_effect_ci95": [
+        -3.443347468638349e-06,
+        0.011055798346670054
+      ],
+      "n": 12
+    },
+    "text_mechanism_pathway_decomposition": {
+      "outcome": "helpfulness",
+      "standardized_coefficients": {
+        "epsilon": 1.6878163311417893e-08,
+        "input_text_distortion": -1.7436828721739306,
+        "representation_distortion": 3.2398338194950718,
+        "calibration_ece": 2.2762068759206606
+      },
+      "r_squared": 0.9999999999999997,
+      "n": 8
+    },
+    "dp_sgd_pathway_decomposition": {
+      "outcome": "helpfulness",
+      "error": "insufficient data"
+    }
+  },
+  "instruction_following": {
+    "mediation_via_representation_distortion": {
+      "outcome": "instruction_following",
+      "path_a_treatment_to_mediator": -0.05407431939457797,
+      "path_b_mediator_to_outcome": 0.7561591085006134,
+      "path_c_total_effect": -0.04209235798937475,
+      "path_c_prime_direct_effect": -0.001203568843193309,
+      "indirect_effect": -0.040888789146181506,
+      "proportion_mediated": 0.9714064761233604,
+      "indirect_effect_ci95": [
+        -0.16283142527016553,
+        0.0
+      ],
+      "n": 8
+    },
+    "pathway_decomposition": {
+      "outcome": "instruction_following",
+      "standardized_coefficients": {
+        "epsilon": 2.6645352591003757e-15,
+        "representation_distortion": -4.029688820354943,
+        "calibration_ece": -1.0100418577330665,
+        "mean_grad_norm": 4.0308299343805185
+      },
+      "r_squared": 1.0,
+      "n": 8
+    },
+    "text_mechanism_mediation_via_input_text_distortion": {
+      "outcome": "instruction_following",
+      "path_a_treatment_to_mediator": -0.029321406077891958,
+      "path_b_mediator_to_outcome": 0.7075920969537596,
+      "path_c_total_effect": -0.046181172291296646,
+      "path_c_prime_direct_effect": -0.02543357707900834,
+      "indirect_effect": -0.02074759521228828,
+      "proportion_mediated": 0.44926523478916525,
+      "indirect_effect_ci95": [
+        -0.08392133339042003,
+        0.01057654810257964
+      ],
+      "n": 12
+    },
+    "text_mechanism_pathway_decomposition": {
+      "outcome": "instruction_following",
+      "standardized_coefficients": {
+        "epsilon": 2.7328818097416274e-09,
+        "input_text_distortion": -0.28233399411452476,
+        "representation_distortion": 0.5089382788045681,
+        "calibration_ece": -0.7696982798108742
+      },
+      "r_squared": 1.0,
+      "n": 8
+    },
+    "dp_sgd_pathway_decomposition": {
+      "outcome": "instruction_following",
+      "error": "insufficient data"
+    }
+  }
+}

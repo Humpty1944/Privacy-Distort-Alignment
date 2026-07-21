@@ -1,4 +1,5 @@
 from __future__ import annotations
+from src.evaluation_pipeline import EvaluationPipeline
 import argparse
 import json
 import time
@@ -83,6 +84,7 @@ def main():
 
     model_name = args.hf_model_name or DEFAULT_MODEL_NAME
     OUT_DIR.mkdir(exist_ok=True)
+    pipeline = EvaluationPipeline(output_dir=str(OUT_DIR))
     t0 = time.time()
 
     print(f"[1/5] Loading base model {model_name} ...")
@@ -94,12 +96,22 @@ def main():
           "+ embeddings for semantic sanitization ...")
     seed0 = args.seeds[0] if args.seeds else 0
     safety_probes = build_safety_probes()
-    real_truthfulqa = load_truthfulqa_probes(n=args.n_truthfulqa, seed=seed0,
-                                              eval_holdout_frac=args.eval_holdout_frac)
-    real_ifeval = load_ifeval_probes(n=args.n_ifeval, seed=seed0)
-    real_alpaca = load_alpaca_probes(
-        n=args.n_alpaca, seed=seed0, eval_holdout_frac=args.eval_holdout_frac,
-        max_target_chars=(args.alpaca_max_target_chars or None))
+    # real_truthfulqa = load_truthfulqa_probes(n=args.n_truthfulqa, seed=seed0,
+    #                                           eval_holdout_frac=args.eval_holdout_frac)
+    # real_ifeval = load_ifeval_probes(n=args.n_ifeval, seed=seed0)
+    # real_alpaca = load_alpaca_probes(
+    #     n=args.n_alpaca, seed=seed0, eval_holdout_frac=args.eval_holdout_frac,
+    #     max_target_chars=(args.alpaca_max_target_chars or None))
+    benchmarks = pipeline.load_benchmarks(
+    n_truthfulqa=args.n_truthfulqa,
+    n_ifeval=args.n_ifeval,
+    n_alpaca=args.n_alpaca,
+    seed=seed0,
+    )
+
+    real_truthfulqa = benchmarks.truthfulqa
+    real_ifeval = benchmarks.ifeval
+    real_alpaca = benchmarks.alpaca
 
     probes = real_truthfulqa + real_ifeval + real_alpaca + safety_probes
     print(f"    Using: {len(safety_probes)} toy safety, {len(real_truthfulqa)} real TruthfulQA, "
@@ -188,6 +200,13 @@ def main():
     df = pd.DataFrame(rows)
     csv_path = OUT_DIR / "results.csv"
     df.to_csv(csv_path, index=False)
+
+    pipeline.save_results(
+        rows=rows,
+        metrics=df.mean(numeric_only=True).to_dict(),
+        config=vars(args),
+    )
+
     print(f"[4/5] Saved raw results -> {csv_path}")
 
     print("[5/5] Running decomposition analysis + generating curves ...")
@@ -216,6 +235,7 @@ def main():
             print(f"    [warn] could not plot {metric}: {e}")
 
     (OUT_DIR / "decomposition_report.json").write_text(json.dumps(report, indent=2, default=float))
+    print("Evaluation pipeline outputs generated successfully.")
     print(f"Done in {time.time() - t0:.1f}s.")
 
 

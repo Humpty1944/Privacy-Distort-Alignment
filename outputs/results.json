@@ -1,0 +1,17 @@
+{
+    "epsilon": 3.125,
+    "seed": 0.0,
+    "input_text_distortion": 0.08081956663435058,
+    "representation_distortion": Infinity,
+    "calibration_ece": 0.06349619721751536,
+    "loss_variance": 1.003700259492652,
+    "mean_grad_norm": 69.86190215349197,
+    "mean_clip_rate": 1.0,
+    "noise_multiplier": 14.5782470703125,
+    "truthfulness": 0.25,
+    "hallucination_rate": 0.0,
+    "refusal_accuracy": 0.578125,
+    "false_refusal_rate": 0.59375,
+    "helpfulness": 0.060885251208511175,
+    "instruction_following": 0.4375
+}
