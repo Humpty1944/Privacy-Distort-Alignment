@@ -1,0 +1,24 @@
+model_name: HuggingFaceTB/SmolLM2-135M
+task: generation
+max_steps: 10
+user_batch_size: 5
+clip_norm: 1.0
+learning_rate: 1e-5
+weight_decay: 0.01
+warmup_ratio: 0.1
+delta: 1.0e-6
+seed: 42
+decoding:
+  classification_temperature: 0.0
+  generation_temperatures: [0.0, 0.7, 1.0]
+lora:
+  enabled: true
+  r: 16
+  alpha: 32
+  dropout: 0.0
+  bias: "none"
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj

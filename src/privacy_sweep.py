@@ -24,7 +24,7 @@ def run_privacy_sweep(
     decode_fn: Optional[Callable] = None,
 ) -> MetricsStore:
     store = MetricsStore()
-
+    print(f"Is running LORA? {config.lora["enabled"]} ")
     for target_epsilon in epsilons:
         print(f"\n===== Privacy sweep: target epsilon = {target_epsilon} =====")
 
@@ -42,7 +42,6 @@ def run_privacy_sweep(
         for row in rows:
             print(
                 f"epsilon={row.epsilon} sigma={row.sigma} "
-                f"acc={row.accuracy} f1={row.f1} bleu={row.bleu} "
                 f"runtime={row.runtime_seconds:.1f}s"
             )
 
