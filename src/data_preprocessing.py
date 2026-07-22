@@ -1,48 +1,34 @@
 """
-Module 0 — Data preprocessing pipeline
-=========================================
+Data preprocessing pipeline
 
-Model-agnostic boundary that turns raw, per-user records into the two
-objects every trainer/evaluator in this package consumes:
-
-    UserLevelDataset   -> Module 2 (DPTrainer) / Module 3 (NonPrivateTrainer)
-    eval DataLoader    -> Module 6 (decoder_eval)
-
-This is shared across all models — classification or generation, tabular
-or text.
-
-Contract for a new model/dataset:
-    1. Implement `FeatureEncoder` (or reuse `IdentityTensorEncoder` for
-       already-numeric data).
-    2. Wrap your raw source into a list of `RawRecord`s (user_id, input,
-       target, split).
-    3. `DataPreprocessor(encoder).build(records)` -> (UserLevelDataset, DataLoader).
+Steps to use it:
+    1. Implement FeatureEncoder
+    2. Wrap your raw source into a list of RawRecord's (user_id, input,
+       target, split)
+    3. DataPreprocessor(encoder).build(records) -> (UserLevelDataset, DataLoader).
 """
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Sequence
 
 import torch
 from torch.utils.data import DataLoader, Dataset
 
+from src.experiment_configs import ExperimentConfig
+
 from .user_level_dataset import UserLevelDataset
 
 
-# ---------------------------------------------------------------------- #
-# The one pluggable, model-specific piece
-# ---------------------------------------------------------------------- #
 class FeatureEncoder(ABC):
     """
     Implement this per model/dataset
     """
 
     @abstractmethod
-    def encode_input(self, raw_input: Any) -> torch.Tensor:
-        """Raw field(s) -> a single, unbatched, model-ready input tensor"""
-        ...
+    def encode_input(self, raw_input: Any): ...
 
     @abstractmethod
     def encode_target(self, raw_target: Any, split: str) -> Any:
@@ -51,18 +37,18 @@ class FeatureEncoder(ABC):
         this split:
           - split == "train": must return a training-ready tensor
           - split == "eval": for classification, a tensor label; for
-            generation
+            generation raw reference text or tokens
         """
         ...
 
 
 class IdentityTensorEncoder(FeatureEncoder):
-    """Reference encoder for already-numeric/tabular data."""
+    """Reference encoder"""
 
-    def encode_input(self, raw_input: Any) -> torch.Tensor:
+    def encode_input(self, raw_input):
         return torch.as_tensor(raw_input, dtype=torch.float32)
 
-    def encode_target(self, raw_target: Any, split: str) -> Any:
+    def encode_target(self, raw_target, split):
         return torch.as_tensor(raw_target, dtype=torch.long)
 
 
@@ -71,48 +57,33 @@ class RawRecord:
     user_id: str
     input: Any
     target: Any
-    split: str = "train"        # "train" or "eval"
+    split: str = "train"  # "train" or "eval"
 
 
-@dataclass
-class PreprocessingConfig:
-    eval_batch_size: int = 32
-    min_records_per_user: int = 1
-    max_records_per_user: Optional[int] = None   # None = no cap
+class SimpleDataset(Dataset):
+    """Dataset wrapper so eval batches can mix tensors with plain
+    objects and still use DataLoader"""
 
-
-class _ListDataset(Dataset):
-    """Thin Dataset wrapper so eval batches can mix tensors with plain
-    objects (e.g. generation reference strings) and still use DataLoader."""
-
-    def __init__(self, items: List[Tuple[Any, Any]]):
+    def __init__(self, items):
         self.items = items
 
-    def __len__(self) -> int:
+    def __len__(self):
         return len(self.items)
 
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx):
         return self.items[idx]
 
 
 class DataPreprocessor:
-    """
-    Usage:
-        pre = DataPreprocessor(encoder=YourFeatureEncoder())
-        train_dataset, eval_dataloader = pre.build(raw_records)
-    """
-
     def __init__(
         self,
         encoder: FeatureEncoder,
-        config: PreprocessingConfig = None,
+        config: ExperimentConfig,
     ):
         self.encoder = encoder
-        self.config = config or PreprocessingConfig()
+        self.config = config
 
-    def build(
-        self, raw_records: Sequence[RawRecord]
-    ) -> Tuple[UserLevelDataset, DataLoader]:
+    def build(self, raw_records: Sequence[RawRecord]):
         train_records = [r for r in raw_records if r.split == "train"]
         eval_records = [r for r in raw_records if r.split == "eval"]
         if not train_records:
@@ -124,11 +95,9 @@ class DataPreprocessor:
         eval_dataloader = self._build_eval_dataloader(eval_records)
         return UserLevelDataset(base_dataset, user_indices), eval_dataloader
 
-    def _build_user_level(
-        self, records: Sequence[RawRecord]
-    ) -> Tuple[List[Tuple[torch.Tensor, Any]], Dict[str, List[int]]]:
-        base_dataset: List[Tuple[torch.Tensor, Any]] = []
-        user_indices: Dict[str, List[int]] = {}
+    def _build_user_level(self, records: Sequence[RawRecord]):
+        base_dataset = []
+        user_indices = {}
 
         for r in records:
             x = self.encoder.encode_input(r.input)
@@ -136,20 +105,23 @@ class DataPreprocessor:
             base_dataset.append((x, y))
             user_indices.setdefault(r.user_id, []).append(len(base_dataset) - 1)
 
-        cfg = self.config
         user_indices = {
-            uid: (idxs[: cfg.max_records_per_user] if cfg.max_records_per_user else idxs)
+            uid: (
+                idxs[: self.config.max_records_per_user]
+                if self.config.max_records_per_user
+                else idxs
+            )
             for uid, idxs in user_indices.items()
-            if len(idxs) >= cfg.min_records_per_user
+            if len(idxs) >= self.config.min_records_per_user
         }
         if not user_indices:
             raise ValueError(
                 "No users met min_records_per_user "
-                f"({cfg.min_records_per_user}) after preprocessing."
+                f"({self.config.min_records_per_user}) after preprocessing."
             )
         return base_dataset, user_indices
 
-    def _build_eval_dataloader(self, records: Sequence[RawRecord]) -> DataLoader:
+    def _build_eval_dataloader(self, records: Sequence[RawRecord]):
         items = [
             (
                 self.encoder.encode_input(r.input),
@@ -158,7 +130,7 @@ class DataPreprocessor:
             for r in records
         ]
         return DataLoader(
-            _ListDataset(items),
+            SimpleDataset(items),
             batch_size=self.config.eval_batch_size,
             shuffle=False,
         )

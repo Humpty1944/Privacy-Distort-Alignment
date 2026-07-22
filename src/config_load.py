@@ -1,7 +1,8 @@
 # config_loader.py
 import json
 from dataclasses import fields, is_dataclass
-import yaml  
+import yaml
+
 
 def load_config(cls, path: str, **overrides):
     """
@@ -12,7 +13,7 @@ def load_config(cls, path: str, **overrides):
     with open(path) as f:
         data = yaml.safe_load(f) if path.endswith((".yaml", ".yml")) else json.load(f)
 
-    data.update(overrides)  
+    data.update(overrides)
 
     valid = {f.name for f in fields(cls)}
     unknown = set(data) - valid

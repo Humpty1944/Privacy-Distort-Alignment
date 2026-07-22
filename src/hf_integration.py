@@ -1,10 +1,7 @@
 """
-Wires a real Hugging Face model (classification or causal-LM generation)
-into the pluggable boundaries this package already exposes:
-
-    FeatureEncoder -> HFClassificationEncoder / HFGenerationEncoder
-    model_factory -> make_model_factory(...)
-    collator   -> hf_collator
+Wires a real Hugging Face model (classification or generation)
+to work with the rest of the code
+LORA OR FULL IS DECIDED HERE
 
 """
 
@@ -15,14 +12,18 @@ from dataclasses import dataclass
 import torch
 from torch import nn
 
+from src.experiment_configs import ExperimentConfig
+
 from .data_preprocessing import FeatureEncoder
+from peft import LoraConfig, get_peft_model
+from transformers import (
+    AutoModelForCausalLM,
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+)
 
 
 def load_tokenizer(model_name: str):
-    """
-    Load a tokenizer and make sure it has a pad token.
-    """
-    from transformers import AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     if tokenizer.pad_token is None:
@@ -93,30 +94,12 @@ class HFGenerationEncoder(FeatureEncoder):
             labels = enc["input_ids"][0].clone()
             labels[labels == self.tokenizer.pad_token_id] = -100
             return labels
-        return raw_target  # eval: keep raw reference text for BLEU/ROUGE
-
-
-def hf_collator(records):
-    """Assembles the dict-shaped {input_ids, attention_mask, labels} batch
-    that HF models expect, from encode_input_dict, encode_target"""
-    input_ids = torch.stack([r[0]["input_ids"] for r in records])
-    attention_mask = torch.stack([r[0]["attention_mask"] for r in records])
-    label_items = [r[1] for r in records]
-    labels = (
-        torch.stack(label_items)
-        if torch.is_tensor(label_items[0])
-        else torch.as_tensor(label_items)
-    )
-    return {"input_ids": input_ids, "attention_mask": attention_mask, "labels": labels}
+        return raw_target  # eval
 
 
 class HFWrapper(nn.Module):
     """
-    Normalizes any HF model to the calling convention the rest of this
-    package expects:
-      - training path (labels given via **batch)         -> full HF output (has .loss)
-      - eval/classification path (no labels, no cache)    -> raw logits tensor
-      - cache-aware generation path (use_cache=True)       -> full HF output (has .past_key_values)
+    Normalizes any HF model to the calling convention
     """
 
     def __init__(self, model, pad_token_id=None):
@@ -124,10 +107,15 @@ class HFWrapper(nn.Module):
         self.model = model
         self.pad_token_id = pad_token_id
 
-    def forward(self, input_ids, attention_mask=None, labels=None,
-                past_key_values=None, use_cache=False):
-        if attention_mask is None and self.pad_token_id is not None and past_key_values is None:
-            attention_mask = (input_ids != self.pad_token_id).long()
+    def forward(
+        self,
+        input_ids,
+        attention_mask=None,
+        labels=None,
+        past_key_values=None,
+        use_cache=False,
+    ):
+
         outputs = self.model(
             input_ids=input_ids,
             attention_mask=attention_mask,
@@ -140,26 +128,35 @@ class HFWrapper(nn.Module):
         return outputs.logits
 
 
-def make_model_factory(model_name: str, task: str, tokenizer, num_classes: int = None, seed: int = 42):
-    """
-    Returns a zero-arg callable suitable for `run_experiment`/`run_privacy_sweep`'s
-    `model_factory` argument -- NOT this function itself. Call it once and pass
-    the *result* as `model_factory=...`:
-
-        factory = make_model_factory(...)
-        run_privacy_sweep(model_factory=factory, ...)
-    """
-    from transformers import AutoModelForCausalLM, AutoModelForSequenceClassification
+def make_model_factory(
+    config: ExperimentConfig,
+    tokenizer,
+    num_classes=None,
+):
 
     def _factory():
-        torch.manual_seed(seed)
-        if task == "classification":
-            base = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=num_classes)
-        elif task == "generation":
-            base = AutoModelForCausalLM.from_pretrained(model_name)
+        torch.manual_seed(config.seed)
+        if config.task == "classification":
+            base = AutoModelForSequenceClassification.from_pretrained(
+                config.model_name, num_labels=num_classes
+            )
+        elif config.task == "generation":
+            base = AutoModelForCausalLM.from_pretrained(config.model_name)
         else:
-            raise ValueError(f"Unknown task: {task}")
+            raise ValueError(f"Unknown task: {config.task}")
         base.config.pad_token_id = tokenizer.pad_token_id
+
+        if config.lora["enabled"]:
+
+            lora_config = LoraConfig(
+                r=config.lora["r"],
+                lora_alpha=config.lora["alpha"],
+                target_modules=config.lora["target_modules"],
+                lora_dropout=config.lora["dropout"],
+                bias=config.lora["bias"],
+                task_type="CAUSAL_LM" if config.task == "generation" else "SEQ_CLS",
+            )
+            base = get_peft_model(base, lora_config)
         return HFWrapper(base, pad_token_id=tokenizer.pad_token_id)
 
     return _factory

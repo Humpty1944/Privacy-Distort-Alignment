@@ -1,9 +1,29 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Optional, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 from torch import nn
+
+
+@dataclass
+class LoRAConfig:
+    enabled: bool = False
+
+    r: int = 16
+    alpha: int = 32
+    dropout: float = 0.05
+
+    bias: str = "none"
+
+    target_modules: List[str] = field(
+        default_factory=lambda: [
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+        ]
+    )
 
 
 @dataclass
@@ -35,6 +55,31 @@ class ExperimentConfig:
     log_every: int = 50
     collator: Optional[Callable] = None
     metric_computer: Any = field(
-        default_factory=lambda: __import__("dp_finetune.metrics", fromlist=["DefaultMetricComputer"]).DefaultMetricComputer()
+        default_factory=lambda: __import__(
+            "dp_finetune.metrics", fromlist=["DefaultMetricComputer"]
+        ).DefaultMetricComputer()
     )
     seed: int = 42
+    lora: LoRAConfig = field(default_factory=LoRAConfig)
+    eval_batch_size: int = 32
+    min_records_per_user: int = 1
+    max_records_per_user: Optional[int] = None  # None = no cap
+
+    def __post_init__(self):
+        numeric_fields = [
+            "learning_rate",
+            "weight_decay",
+            "clip_norm",
+            "warmup_ratio",
+            "delta",
+            "max_length",
+            "default_k",
+            "max_steps",
+            "eval_batch_size",
+            "min_records_per_user"
+        ]
+
+        for field_name in numeric_fields:
+            value = getattr(self, field_name)
+            if isinstance(value, str):
+                setattr(self, field_name, float(value))

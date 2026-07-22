@@ -8,3 +8,4 @@ pandas
 transformers
 rouge_score 
 pyyaml
+peft
